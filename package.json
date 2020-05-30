@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "inline-assets": "^1.4.5",
@@ -8,7 +10,8 @@
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3"
+    "babel-core": "^6.26.3",
+    "typescript": "^3.9.3"
   },
   "name": "coderdojo-meetings",
   "version": "1.0.0",
