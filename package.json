@@ -16,6 +16,7 @@
   "author": "paranoidcake <victorpanayotov@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html && cargo run"
+    "start": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html && cargo run",
+    "poststart": "rm -r dist/"
   }
 }
