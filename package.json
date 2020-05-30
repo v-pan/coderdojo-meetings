@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "inline-assets": "^1.4.5",
+    "parcel-bundler": "^1.12.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3"
+  },
+  "name": "coderdojo-meetings",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "paranoidcake <victorpanayotov@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html && cargo run"
+  }
+}
