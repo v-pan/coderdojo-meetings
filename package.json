@@ -16,7 +16,12 @@
   "author": "paranoidcake <victorpanayotov@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html && cargo run",
-    "poststart": "rm -r dist/"
+    "bundle": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html",
+
+    "start": "yarn run bundle && cargo run",
+    "poststart": "rm -r dist/*.js dist/*.js.map",
+    
+    "build": "yarn run bundle && cargo build",
+    "postbuild": "rm -r dist/*.js dist/*.js.map"
   }
 }
