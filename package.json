@@ -1,13 +1,16 @@
 {
   "dependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/plugin-transform-react-jsx": "^7.10.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "inline-assets": "^1.4.5",
-    "parcel-bundler": "^1.12.4",
-    "preact": "^10.4.4"
+    "preact": "^10.4.4",
+    "preact-compat": "^3.19.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3"
+    "babel-core": "^6.26.3",
+    "parcel-bundler": "^1.12.4"
   },
   "name": "coderdojo-meetings",
   "version": "1.0.0",
@@ -20,10 +23,5 @@
     "poststart": "rm -r dist/*.js dist/*.js.map",
     "build": "yarn run bundle && cargo build",
     "postbuild": "rm -r dist/*.js dist/*.js.map"
-  },
-  "alias": {
-    "react": "preact/compat",
-    "react-dom/test-utils": "preact/test-utils",
-    "react-dom": "preact/compat"
   }
 }
