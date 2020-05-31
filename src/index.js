@@ -1,8 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import { render, Component } from "preact";
 import Header from './component/Header'
 
-class HelloMessage extends React.Component {
+class HelloMessage extends Component {
     render() {
         return <div>
             <Header/>
@@ -19,6 +18,4 @@ let rust = {
     test: () => { rust.invoke({cmd: 'test', text: 'This is a test'}) }
 }
 
-let App = document.getElementById("app");
-
-ReactDOM.render(<HelloMessage name="React" />, App);
+render(<HelloMessage name="Preact" />, document.body);

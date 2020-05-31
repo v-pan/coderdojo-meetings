@@ -4,8 +4,7 @@
     "babel-preset-react": "^6.24.1",
     "inline-assets": "^1.4.5",
     "parcel-bundler": "^1.12.4",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "preact": "^10.4.4"
   },
   "devDependencies": {
     "babel-core": "^6.26.3"
@@ -17,11 +16,14 @@
   "license": "MIT",
   "scripts": {
     "bundle": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html",
-
     "start": "yarn run bundle && cargo run",
     "poststart": "rm -r dist/*.js dist/*.js.map",
-    
     "build": "yarn run bundle && cargo build",
     "postbuild": "rm -r dist/*.js dist/*.js.map"
+  },
+  "alias": {
+    "react": "preact/compat",
+    "react-dom/test-utils": "preact/test-utils",
+    "react-dom": "preact/compat"
   }
 }

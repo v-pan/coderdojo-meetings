@@ -1,4 +1,4 @@
-import React from 'react'
+import { render, Component } from "preact";
 // import ParcelLogo from "../img/parcel-logo.svg";
 
 const Header = () => (
