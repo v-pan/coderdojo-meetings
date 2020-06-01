@@ -1,4 +1,5 @@
 import {v4 as generateUUID} from "uuid"
+import { useEffect } from "react";
 
 export class WebviewMessage {
     subscription_id: string;
@@ -24,7 +25,7 @@ export class WebviewService {
         document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: Function) {
+    constructor(handler: (detail: any) => void) {
         // Remember event listener for cleanup
         this.event_listener = ((response: CustomEvent) => {
             handler(response.detail)
@@ -33,4 +34,15 @@ export class WebviewService {
         // Listen for responses
         document.addEventListener(this.subscription_id, this.event_listener)
     }
+}
+
+export const useWebviewService = (handler: (detail: any) => void): WebviewService => {
+    const service = new WebviewService(handler)
+    useEffect(() => {
+
+        return () => {
+            service.drop()
+        }
+    })
+    return service
 }

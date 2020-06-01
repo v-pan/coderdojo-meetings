@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { WebviewService } from "../WebviewService";
+import { WebviewService, useWebviewService } from "../WebviewService";
 
 export const Main = () => {
     const test = () => service.send({cmd: 'test', text: 'This is a test'})
@@ -7,19 +7,9 @@ export const Main = () => {
 
     const [response, setResponse] = useState(0)
 
-    const responseHandler = (detail: any) => {
+    const service = useWebviewService((detail) => {
         // TODO: Probably gonna use a reducer style of handling reponse details. Have some state changes instead :)
         setResponse(detail)
-    }
-
-    const service = new WebviewService(responseHandler)
-
-    useEffect(() => {
-
-        return () => {
-            // Gotta drop the service when the component unmounts to remove the listener. Automate this somehow, maybe with refs or a custom hook?
-            service.drop()
-        }
     })
 
     return (
