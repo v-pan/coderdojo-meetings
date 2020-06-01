@@ -1,31 +1,33 @@
 import {v4 as generateUUID} from "uuid"
 import { useEffect } from "react";
 
-export class WebviewMessage {
+class WebviewMessage<T> {
     subscription_id: string;
-    inner: any;
+    inner: T;
 
-    constructor(subscription_id: string, inner: any) {
+    constructor(subscription_id: string, inner: T) {
         this.subscription_id = subscription_id;
         this.inner = inner;
     }
 }
 
-export class WebviewService {
+class WebviewService {
     private subscription_id = generateUUID();
     private event_listener: EventListener;
 
-    private invoke = (arg: WebviewMessage) => (window as any).external.invoke(JSON.stringify(arg));
-    send = (messageContent: any) => {
-        // Wrap and send to rust invokehandler
-        this.invoke(new WebviewMessage(this.subscription_id, messageContent));
+    private invoke = <T>(arg: WebviewMessage<T>) => {
+        (window as any).external.invoke(JSON.stringify(arg));
+    }
+
+    send = <T>(messageContent: T) => {
+        this.invoke(new WebviewMessage<T>(this.subscription_id, messageContent));
     }
 
     drop = () => {
         document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (detail: any) => void) {
+    constructor(handler: (detail: string) => void) {
         // Remember event listener for cleanup
         this.event_listener = ((response: CustomEvent) => {
             handler(response.detail)

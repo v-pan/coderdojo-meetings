@@ -17,25 +17,32 @@ fn main() {
         .debug(true)
         .user_data(())
         .invoke_handler(|webview, arg| {
-            handle_message(webview, arg, |inner: Detail| Some(inner.number) );
+            handle_message(webview, arg, |inner: Cmd| {
+                match inner {
+                    Cmd::Init => {
+                        None
+                    }
+                    Cmd::Log { text } => {
+                        println!("{}", text);
+                        None
+                    }
+                    Cmd::Increment { number } => {
+                        Some(number + 1)
+                    }
+                }
+            } );
             Ok(())
         })
         .run()
         .unwrap();
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(tag = "cmd", rename_all = "camelCase")]
 pub enum Cmd {
     Init,
-    Test {text: String},
-    TestLog { number: isize }
-}
-
-#[derive(Deserialize, Serialize)]
-struct Detail {
-    cmd: String,
-    number: isize
+    Log { text: String },
+    Increment { number: isize }
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,25 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { WebviewService, useWebviewService } from "../WebviewService";
+import { useWebviewService } from "../WebviewService";
+import { ServiceConsumer } from "./ServiceConsumer";
 
 export const Main = () => {
-    const test = () => service.send({cmd: 'test', text: 'This is a test'})
-    const testLog = () => service.send({cmd: 'testLog', number: 3})
+    // TODO: Automate service.send() calls
+    // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
+    const log = () => service.send({cmd: 'log', text: 'This is a test' })
+    const increment = () => service.send({cmd: 'increment', number: count })
 
-    const [response, setResponse] = useState(0)
+    const [count, setCount] = useState(0)
 
-    const service = useWebviewService((detail) => {
+    const service = useWebviewService((detail: string) => {
         // TODO: Probably gonna use a reducer style of handling reponse details. Have some state changes instead :)
-        setResponse(detail)
+        setCount(parseInt(detail))
     })
 
     return (
         <div>
             <div className="container">
                 <h1>Hello World!</h1>
-                <p>Last response: {response}</p>
-                <button onClick={() => { test() }}>Click me to print from Rust!</button>
+                <p>Last response: {count}</p>
+                <button onClick={() => { log() }}>Click me to print from Rust!</button>
                 <br/>
-                <button onClick={() => { testLog() }}>Test Log</button>
+                <button onClick={() => { increment() }}>Test Log</button>
+                {/* Testing having many services */}
+                <br />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <br />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <br />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <ServiceConsumer />
+                <br />
             </div>
         </div>
     )
