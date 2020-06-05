@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { h } from "preact";
+import { useState } from "preact/hooks";
 import { useWebviewService } from "../WebviewService";
 import { ServiceConsumer } from "./ServiceConsumer";
 
