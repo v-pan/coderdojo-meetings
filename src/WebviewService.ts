@@ -1,5 +1,5 @@
 import {v4 as generateUUID} from "uuid"
-import { useEffect } from "react";
+import { useEffect } from "preact/hooks";
 
 class WebviewMessage<T> {
     subscription_id: string;

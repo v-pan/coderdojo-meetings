@@ -1,7 +1,5 @@
-import React from "react";
-import ReactDOM from "react-dom";
+/** @jsx h */
+import { h, render } from "preact";
 import App from "./App";
 
-let AppEntry = document.getElementById("app");
-
-ReactDOM.render(<App />, AppEntry);
+render(<App />, document.body);
