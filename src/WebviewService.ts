@@ -38,7 +38,7 @@ class WebviewService {
     }
 }
 
-export const useWebviewService = (handler: (detail: any) => void): WebviewService => {
+export const useWebviewService = (handler: (detail: string) => void): WebviewService => {
     const service = new WebviewService(handler)
     useEffect(() => {
 
