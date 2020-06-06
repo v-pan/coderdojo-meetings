@@ -1,5 +1,6 @@
 import {v4 as generateUUID} from "uuid"
 import { useEffect } from "preact/hooks";
+import { Cmd } from "../types/pkg/types";
 
 class WebviewMessage<T> {
     subscription_id: string;
@@ -44,6 +45,9 @@ class WebviewService<T> {
 
         // Listen for responses
         document.addEventListener(this.subscription_id, this.event_listener)
+
+        const test: Cmd = {tag: 'init'}
+        console.log(test)
     }
 }
 
