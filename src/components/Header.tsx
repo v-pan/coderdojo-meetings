@@ -1,4 +1,4 @@
-import React from 'react'
+import { h } from "preact";
 // import ParcelLogo from "../img/parcel-logo.svg";
 
 const Header = () => (
