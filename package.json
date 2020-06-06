@@ -6,6 +6,7 @@
     "inline-assets": "^1.4.5",
     "parcel-bundler": "^1.12.4",
     "preact": "^10.4.4",
+    "replace-in-file": "^6.0.0",
     "uuid": "^8.1.0"
   },
   "devDependencies": {
@@ -20,11 +21,9 @@
   "author": "paranoidcake <victorpanayotov@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "bundle": "parcel build index.html && sed -i 's|<script src=\"/|<script src=\"./|' ./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html",
-
+    "bundle": "parcel build index.html && replace-in-file '<script src=\"/' '<script src=\"./' ./dist/index.html,./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html",
     "start": "yarn run bundle && cargo run",
     "poststart": "rm -r dist/*.js dist/*.js.map",
-    
     "build": "yarn run bundle && cargo build",
     "postbuild": "rm -r dist/*.js dist/*.js.map"
   }
