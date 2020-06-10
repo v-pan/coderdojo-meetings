@@ -23,8 +23,8 @@ class WebviewService<T> {
     /**
      * Sends `messageContent` to the backend, to be processed by the handler passed to `handle_message`
      */
-    send = (messageContent: Request) => {
-        this.invoke(new WebviewMessage(this.subscription_id, messageContent));
+    send = (request: Request) => {
+        this.invoke(new WebviewMessage(this.subscription_id, request));
     }
 
     /**
@@ -35,7 +35,7 @@ class WebviewService<T> {
         document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (detail: T) => void, unwrapper: (message: CustomEvent) => T) {
+    constructor(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T) {
         // Remember event listener for cleanup
         this.event_listener = ((response: CustomEvent) => {
             handler(
@@ -54,9 +54,9 @@ class WebviewService<T> {
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
 
-export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (message: CustomEvent) => T): WebviewService<T> => {
-    const defaultUnwrapper = (message: CustomEvent) => {
-        return message.detail
+export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (event: CustomEvent) => T): WebviewService<T> => {
+    const defaultUnwrapper = (event: CustomEvent) => {
+        return event.detail
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
