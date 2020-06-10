@@ -6,7 +6,7 @@ extern crate types;
 use web_view::*;
 use serde_derive::*;
 use serde::{Deserialize, Serialize};
-use types::Cmd;
+use types::Request;
 
 fn main() {
     let html_content = include_str!("../dist/bundle.html");
@@ -19,19 +19,19 @@ fn main() {
         .debug(true)
         .user_data(())
         .invoke_handler(|webview, arg| {
-            handle_message(webview, arg, |inner: Cmd| {
+            handle_message(webview, arg, |inner: Request| {
                 match inner {
-                    Cmd::Init => {
+                    Request::Init => {
                         None
                     }
-                    Cmd::Log { text } => {
+                    Request::Log { text } => {
                         println!("{}", text);
                         None
                     }
-                    Cmd::Increment { number } => {
+                    Request::Increment { number } => {
                         Some(number + 1)
                     }
-                    Cmd::Test => {
+                    Request::Test => {
                         None
                     }
                 }

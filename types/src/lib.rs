@@ -6,7 +6,7 @@ use serde_derive::*;
 
 #[derive(Deserialize, Serialize, TypescriptDefinition)]
 #[serde(tag = "tag", content = "fields", rename_all = "camelCase")]
-pub enum Cmd {
+pub enum Request {
     Init,
     Log { text: String },
     Increment { number: isize },

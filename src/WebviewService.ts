@@ -1,6 +1,6 @@
 import {v4 as generateUUID} from "uuid"
 import { useEffect } from "preact/hooks";
-import { Cmd } from "../types/pkg/types";
+import { Request } from "../types/pkg/types";
 
 class WebviewMessage<T> {
     subscription_id: string;
@@ -23,7 +23,7 @@ class WebviewService<T> {
     /**
      * Sends `messageContent` to the backend, to be processed by the handler passed to `handle_message`
      */
-    send = (messageContent: Cmd) => {
+    send = (messageContent: Request) => {
         this.invoke(new WebviewMessage(this.subscription_id, messageContent));
     }
 
@@ -35,7 +35,7 @@ class WebviewService<T> {
         document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (detail: T) => void, unwrapper: (inner: any) => T) {
+    constructor(handler: (detail: T) => void, unwrapper: (message: CustomEvent) => T) {
         // Remember event listener for cleanup
         this.event_listener = ((response: CustomEvent) => {
             handler(
@@ -50,13 +50,13 @@ class WebviewService<T> {
 
 /**
  * Returns a WebviewService instance
- * @param handler A function, given the `content` returned from `unwrapper`, to handle responses from the backend. If no unwrapper is specified, `content` will be the raw data passed from the backend.
- * @param unwrapper Optional function to expose the CustomEvent received from the backend. Returns the `content` passed to `handler`
+ * @param handler A function, given the `content` returned from `unwrapper`, to handle responses from the backend. If no unwrapper is specified, `content` will be the raw data returned by the backend.
+ * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
 
-export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (inner: CustomEvent) => T): WebviewService<T> => {
-    const defaultUnwrapper = (inner: CustomEvent) => {
-        return inner.detail
+export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (message: CustomEvent) => T): WebviewService<T> => {
+    const defaultUnwrapper = (message: CustomEvent) => {
+        return message.detail
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
