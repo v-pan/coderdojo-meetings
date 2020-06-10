@@ -21,10 +21,10 @@
   "author": "paranoidcake <victorpanayotov@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "buildtypes": "cd ./types && wasm-pack build && cd ..",
     "bundle": "parcel build index.html && replace-in-file '<script src=\"/' '<script src=\"./' ./dist/index.html,./dist/index.html && inline-assets --htmlmin --cssmin dist/index.html dist/bundle.html",
-    "start": "yarn run bundle && cargo run",
-    "poststart": "rm -r dist/*.js dist/*.js.map",
-    "build": "yarn run bundle && cargo build",
-    "postbuild": "rm -r dist/*.js dist/*.js.map"
+    "postbundle": "mkdir temp && mv dist/* temp/ && mv temp/*.html dist/ && rm -r temp",
+    "start": "yarn run buildtypes && yarn run bundle && cargo run",
+    "build": "yarn run buildtypes && yarn run bundle && cargo build"
   }
 }

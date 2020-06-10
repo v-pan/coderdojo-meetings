@@ -1,10 +1,12 @@
 extern crate serde_json;
 extern crate serde_derive;
 extern crate web_view;
+extern crate types;
 
 use web_view::*;
 use serde_derive::*;
 use serde::{Deserialize, Serialize};
+use types::Cmd;
 
 fn main() {
     let html_content = include_str!("../dist/bundle.html");
@@ -29,20 +31,15 @@ fn main() {
                     Cmd::Increment { number } => {
                         Some(number + 1)
                     }
+                    Cmd::Test => {
+                        None
+                    }
                 }
             } );
             Ok(())
         })
         .run()
         .unwrap();
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(tag = "cmd", rename_all = "camelCase")]
-pub enum Cmd {
-    Init,
-    Log { text: String },
-    Increment { number: isize }
 }
 
 #[derive(Serialize, Deserialize)]
