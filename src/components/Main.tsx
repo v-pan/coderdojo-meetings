@@ -6,8 +6,8 @@ import { ServiceConsumer } from "./ServiceConsumer";
 export const Main = () => {
     // TODO: Automate service.send() calls
     // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
-    const log = () => service.send({cmd: 'log', text: 'This is a test' })
-    const increment = () => service.send({cmd: 'increment', number: count })
+    const log = () => service.send({tag: 'log', fields: { text: 'This is a test' } })
+    const increment = () => service.send({tag: 'increment', fields:{ number: count }})
 
     const [count, setCount] = useState(0)
 

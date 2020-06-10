@@ -23,8 +23,8 @@ class WebviewService<T> {
     /**
      * Sends `messageContent` to the backend, to be processed by the handler passed to `handle_message`
      */
-    send = <T>(messageContent: T) => {
-        this.invoke(new WebviewMessage<T>(this.subscription_id, messageContent));
+    send = (messageContent: Cmd) => {
+        this.invoke(new WebviewMessage(this.subscription_id, messageContent));
     }
 
     /**

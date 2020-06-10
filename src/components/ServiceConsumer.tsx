@@ -7,7 +7,7 @@ export const ServiceConsumer = () => {
     const webviewService = useWebviewService((detail: string) => {
         setResponse(parseInt(detail))
     })
-    const testReturn = () => webviewService.send({cmd: 'increment', number: response})
+    const testReturn = () => webviewService.send({tag: 'increment', fields: { number: response }})
 
     return <button onClick={testReturn}>{response}</button>
 }
