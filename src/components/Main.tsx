@@ -4,10 +4,13 @@ import { useWebviewService } from "../WebviewService";
 import { ServiceConsumer } from "./ServiceConsumer";
 
 export const Main = () => {
-    // TODO: Automate service.send() calls
-    // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
+    // No longer needed with stronger typing
+    // // TODO: Automate service.send() calls
+    // // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
+
     const log = () => service.send({tag: 'log', fields: { text: 'This is a test' } })
     const increment = () => service.send({tag: 'increment', fields:{ number: count }})
+    const init = () => service.send({tag: 'init'})
 
     const [count, setCount] = useState(0)
 
@@ -24,6 +27,7 @@ export const Main = () => {
                 <button onClick={() => { log() }}>Click me to print from Rust!</button>
                 <br/>
                 <button onClick={() => { increment() }}>Test Log</button>
+                <button onClick={init}>Init</button>
                 {/* Testing having many services */}
                 <br />
                 <ServiceConsumer />
