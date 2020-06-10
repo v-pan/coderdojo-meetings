@@ -5,7 +5,7 @@ use wasm_typescript_definition::*;
 use serde_derive::*;
 
 #[derive(Deserialize, Serialize, TypescriptDefinition)]
-#[serde(tag = "cmd", rename_all = "camelCase")]
+#[serde(tag = "tag", content = "fields", rename_all = "camelCase")]
 pub enum Cmd {
     Init,
     Log { text: String },

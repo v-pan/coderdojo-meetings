@@ -45,9 +45,6 @@ class WebviewService<T> {
 
         // Listen for responses
         document.addEventListener(this.subscription_id, this.event_listener)
-
-        const test: Cmd = {tag: 'init'}
-        console.log(test)
     }
 }
 
@@ -68,6 +65,6 @@ export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: 
         return () => {
             service.drop()
         }
-    })
+    }, [])
     return service
 }
