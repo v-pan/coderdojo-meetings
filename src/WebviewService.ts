@@ -1,6 +1,6 @@
 import {v4 as generateUUID} from "uuid"
 import { useEffect, useState } from "preact/hooks";
-import { Request } from "../types/pkg/types";
+import { Request, Return } from "../types/pkg/types";
 
 class WebviewMessage<T> {
     subscription_id: string;
@@ -73,7 +73,7 @@ class WebviewService<T> {
         // document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => T) {
+    constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => Return) {
         this.handler = handler;
         this.unwrapper = unwrapper;
         this.queue = this.createPromiseQueue();
@@ -86,9 +86,10 @@ class WebviewService<T> {
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
 
-export const useWebviewService = <T>(handler: (content: T) => any, unwrapper?: (event: CustomEvent) => T): WebviewService<T> => {
+export const useWebviewService = <T>(handler: (content: T) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService<T> => {
     const defaultUnwrapper = (event: CustomEvent) => {
-        return event.detail.inner
+        console.log("Recieved:", event.detail)
+        return event.detail.inner as Return
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)

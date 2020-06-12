@@ -1,7 +1,6 @@
 extern crate web_view;
 extern crate types;
 use web_view::*;
-use types::Request;
 
 fn main() {
     let html_content = include_str!("../dist/bundle.html");
@@ -44,28 +43,41 @@ fn handle_message<
     // TODO: Queue up recieved messages and loop over them in the thread
     tokio::spawn(
         async move {
-            let recieved: Message<Request> = serde_json::from_str(&arg).unwrap();
+            let recieved: Message<types::webview::Request> = serde_json::from_str(&arg).unwrap();
 
             // TODO: Get this to be passed into the function without needing a static lifetime
             // let output = handler(received.inner)
 
-            let output = {
+            let output: Option<types::webview::Return> = {
+                use types::webview::Request::*;
+                use types::webview::*;
+
                 match &recieved.inner {
-                    Request::Init => {
+                    Init => {
                         None
                     }
-                    Request::Log { text } => {
+                    Log { text } => {
                         println!("{}", text);
                         None
                     }
-                    Request::Increment { number } => {
-                        Some(number + 1)
+                    Increment { number } => {
+                        Some(Return::Increment {
+                            number: *number + 1
+                        })
                     }
-                    Request::DelayedIncrement { number } => {
+                    DelayedIncrement { number } => {
                         std::thread::sleep(std::time::Duration::from_millis(1000));
-                        Some(number + 1)
+                        Some(Return::DelayedIncrement {
+                            number: *number + 1
+                        })
                     }
-                    Request::Test => {
+                    ConvertUpperCase { text } => {
+                        let text: &String = text;
+                        Some(Return::ConvertUpperCase {
+                            text: text.to_string().to_ascii_uppercase()
+                        })
+                    }
+                    Test => {
                         None
                     }
                 }
@@ -81,7 +93,7 @@ fn handle_message<
 
                     let eval_script = format!(
                         r#"document.dispatchEvent(
-                            new CustomEvent("{event_name}", {{ detail: {{ messageId: {message_id:?}, inner: {content:?} }} }})
+                            new CustomEvent("{event_name}", {{ detail: {{ messageId: {message_id:?}, inner: {content} }} }})
                         );"#,
                         event_name = sending.subscription_id,
                         message_id = sending.message_id,
