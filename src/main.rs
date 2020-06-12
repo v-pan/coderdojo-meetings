@@ -40,7 +40,6 @@ fn handle_message<
     // OUT: DeserializeOwned + Serialize + Send,
     // H: Fn(Request) -> std::option::Option<OUT> + Send
 >(handle: Handle<()>, arg: String, /* handler: H */) {
-    // TODO: Queue up recieved messages and loop over them in the thread
     tokio::spawn(
         async move {
             let recieved: Message<types::webview::Request> = serde_json::from_str(&arg).unwrap();
