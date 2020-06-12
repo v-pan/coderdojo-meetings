@@ -2,8 +2,6 @@ import { h } from "preact";
 import { useState } from "preact/hooks";
 import { useWebviewService, useBoxedState } from "../WebviewService";
 import { ServiceConsumer } from "./ServiceConsumer";
-import { useEffect } from "preact/hooks";
-import { Return } from "../../types/pkg/types";
 
 export const Main = () => {
     // No longer needed with stronger typing
@@ -18,7 +16,7 @@ export const Main = () => {
     const [text, setText] = useBoxedState("")
 
     const toUpperCase = () => service.queue(async () => {
-        let result = await service.send({tag: 'convertUpperCase', fields: { text: text.value }})
+        let result = await service.send({tag: 'toUpperCase', fields: { text: text.value }})
         setText(result)
     })
 
@@ -36,13 +34,7 @@ export const Main = () => {
         setCount(result)
     })
 
-    const service = useWebviewService((detail: Return) => {
-        if(detail.tag === 'delayedIncrement' || detail.tag === 'increment') {
-            return detail.fields.number
-        } else if (detail.tag === 'convertUpperCase') {
-            return detail.fields.text
-        }
-    })
+    const service = useWebviewService()
 
     return (
         <div>

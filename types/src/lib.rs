@@ -12,7 +12,7 @@ pub mod webview {
         Log { text: String },
         Increment { number: isize },
         DelayedIncrement { number: isize },
-        ConvertUpperCase { text: String },
+        ToUpperCase { text: String },
         Test
     }
     
@@ -21,6 +21,6 @@ pub mod webview {
     pub enum Return {
         Increment { number: isize },
         DelayedIncrement { number: isize },
-        ConvertUpperCase { text: String }
+        ToUpperCase { text: String }
     }
 }

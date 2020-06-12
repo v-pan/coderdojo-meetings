@@ -1,4 +1,4 @@
-import {v4 as generateUUID} from "uuid"
+import { v4 as generateUUID } from "uuid"
 import { useEffect, useState } from "preact/hooks";
 import { Request, Return } from "../types/pkg/types";
 
@@ -22,7 +22,7 @@ class WebviewService<T> {
 
     private sent_messages: { [messageId: string]: { event_listener: EventListener } } = {};
 
-    queue: (fn: () => any) => Promise<void>;
+    queue: (fn: () => any) => Promise<any>;
 
     private invoke = <T>(arg: WebviewMessage<T>) => {
         (window as any).external.invoke(JSON.stringify(arg));
@@ -34,24 +34,28 @@ class WebviewService<T> {
     send = (request: Request) => {
         let message = new WebviewMessage(this.subscription_id, request)
 
-        const promise: Promise<any> = new Promise((resolve, _) => {
-            let event_listener = ((response: CustomEvent) => {
-                if(response.detail.messageId == message.message_id) {
-                    document.removeEventListener(this.subscription_id, this.sent_messages[message.message_id].event_listener)
-                    delete this.sent_messages[message.message_id]
-
-                    // console.log("Cleaned up this listener")
-                    resolve(this.handler(this.unwrapper(response)))
-                }
-            }) as EventListener
-
-            this.sent_messages[message.message_id] = { event_listener: event_listener }
-
-            document.addEventListener(this.subscription_id, event_listener)
-        });
-
-        this.invoke(message);
-        return promise
+        if(narrowReturnType(request as Return) !== null) {
+            const promise: Promise<any> = new Promise((resolve, _) => {
+                let event_listener = ((response: CustomEvent) => {
+                    if(response.detail.messageId == message.message_id) {
+                        document.removeEventListener(this.subscription_id, this.sent_messages[message.message_id].event_listener)
+                        delete this.sent_messages[message.message_id]
+    
+                        // console.log("Cleaned up this listener")
+                        resolve(this.handler(this.unwrapper(response)))
+                    }
+                }) as EventListener
+    
+                this.sent_messages[message.message_id] = { event_listener: event_listener }
+    
+                document.addEventListener(this.subscription_id, event_listener)
+            });
+    
+            this.invoke(message);
+            return promise;
+        } else {
+            this.invoke(message);
+        }
     }
 
     private createPromiseQueue = (/*stopOnError: boolean*/) => {
@@ -69,8 +73,10 @@ class WebviewService<T> {
      * You should not need to call this if you are using the `useWebviewService` hook
      */
     drop = () => {
-        // TODO: Implement this
-        // document.removeEventListener(this.subscription_id, this.event_listener)
+        for(var key of Object.keys(this.sent_messages)) {
+            document.removeEventListener(this.subscription_id, this.sent_messages[key].event_listener)
+            delete this.sent_messages[key]
+        }
     }
 
     constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => Return) {
@@ -80,19 +86,30 @@ class WebviewService<T> {
     }
 }
 
+export const narrowReturnType = (detail: Partial<Return>) => {
+    if(detail.tag === 'delayedIncrement' || detail.tag === 'increment') {
+        return detail?.fields?.number ? detail.fields.number : undefined
+    } else if (detail.tag === 'toUpperCase') {
+        return detail?.fields?.text ? detail.fields.text : undefined
+    } else {
+        return null
+    }
+}
+
 /**
  * Returns a WebviewService instance
  * @param handler A function, given the `content` returned from `unwrapper`, to handle responses from the backend. If no unwrapper is specified, `content` will be the raw data returned by the backend.
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
 
-export const useWebviewService = <T>(handler: (content: T) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService<T> => {
+export const useWebviewService = <T>(handler?: (content: T) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService<T> => {
     const defaultUnwrapper = (event: CustomEvent) => {
-        console.log("Recieved:", event.detail)
         return event.detail.inner as Return
     }
 
-    const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
+    unwrapper = unwrapper ? unwrapper : defaultUnwrapper
+
+    const service = new WebviewService(narrowReturnType, unwrapper)
     useEffect(() => {
 
         return () => {

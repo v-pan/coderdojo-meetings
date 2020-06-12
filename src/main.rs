@@ -70,9 +70,9 @@ fn handle_message<
                             number: *number + 1
                         })
                     }
-                    ConvertUpperCase { text } => {
+                    ToUpperCase { text } => {
                         let text: &String = text;
-                        Some(Return::ConvertUpperCase {
+                        Some(Return::ToUpperCase {
                             text: text.to_string().to_ascii_uppercase()
                         })
                     }
