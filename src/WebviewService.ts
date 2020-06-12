@@ -1,5 +1,5 @@
 import {v4 as generateUUID} from "uuid"
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { Request } from "../types/pkg/types";
 
 class WebviewMessage<T> {
@@ -16,9 +16,13 @@ class WebviewMessage<T> {
 
 class WebviewService<T> {
     private subscription_id = generateUUID();
+
     private handler: (content: any) => any;
     private unwrapper: (content: any) => any;
+
     private sent_messages: { [messageId: string]: { event_listener: EventListener } } = {};
+
+    queue: (fn: () => any) => Promise<void>;
 
     private invoke = <T>(arg: WebviewMessage<T>) => {
         (window as any).external.invoke(JSON.stringify(arg));
@@ -30,13 +34,13 @@ class WebviewService<T> {
     send = (request: Request) => {
         let message = new WebviewMessage(this.subscription_id, request)
 
-        const promise = new Promise((resolve, _) => {
+        const promise: Promise<any> = new Promise((resolve, _) => {
             let event_listener = ((response: CustomEvent) => {
                 if(response.detail.messageId == message.message_id) {
                     document.removeEventListener(this.subscription_id, this.sent_messages[message.message_id].event_listener)
                     delete this.sent_messages[message.message_id]
 
-                    console.log("Cleaned up this listener")
+                    // console.log("Cleaned up this listener")
                     resolve(this.handler(this.unwrapper(response)))
                 }
             }) as EventListener
@@ -48,6 +52,16 @@ class WebviewService<T> {
 
         this.invoke(message);
         return promise
+    }
+
+    private createPromiseQueue = (/*stopOnError: boolean*/) => {
+        let p: Promise<any> = Promise.resolve()
+        return function(fn: (request: Request) => any) {
+            p = p
+            // .then(null, function() { if(!stopOnError) return Promise.resolve() })
+            .then(fn);
+            return p
+        }
     }
 
     /**
@@ -62,6 +76,7 @@ class WebviewService<T> {
     constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => T) {
         this.handler = handler;
         this.unwrapper = unwrapper;
+        this.queue = this.createPromiseQueue();
     }
 }
 
@@ -84,4 +99,20 @@ export const useWebviewService = <T>(handler: (content: T) => any, unwrapper?: (
         }
     }, [])
     return service
+}
+
+export function useBoxedState<S>(initialState: S | (() => S)): [{value: S}, (value: S | ((prevState: S) => S)) => void] {
+    const [internalState, setInternalState] = useState(initialState)
+    const box = { value: internalState }
+
+    function setExternalState (value: S | ((prevState: S) => S)) {
+        if(value instanceof Function) {
+            box.value = value(box.value);
+        } else {
+            box.value = value
+        }
+        setInternalState(value)
+    }
+
+    return [box, setExternalState]
 }

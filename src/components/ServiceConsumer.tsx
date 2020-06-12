@@ -4,6 +4,7 @@ import { useWebviewService } from "../WebviewService"
 
 export const ServiceConsumer = () => {
     const [response, setResponse] = useState(0)
+
     const webviewService = useWebviewService((detail: string) => {
         setResponse(parseInt(detail))
         return parseInt(detail)
