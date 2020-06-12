@@ -10,5 +10,6 @@ pub enum Request {
     Init,
     Log { text: String },
     Increment { number: isize },
+    DelayedIncrement { number: isize },
     Test
 }

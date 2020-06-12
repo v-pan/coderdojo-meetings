@@ -30,9 +30,10 @@ use serde_derive::*;
 // use serde::Serialize;
 // use serde::de::DeserializeOwned;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, std::fmt::Debug)]
 pub struct Message<T> {
     subscription_id: String,
+    message_id: String,
     inner: T
 }
 
@@ -49,7 +50,7 @@ fn handle_message<
             // let output = handler(received.inner)
 
             let output = {
-                match recieved.inner {
+                match &recieved.inner {
                     Request::Init => {
                         None
                     }
@@ -58,6 +59,9 @@ fn handle_message<
                         None
                     }
                     Request::Increment { number } => {
+                        Some(number + 1)
+                    }
+                    Request::DelayedIncrement { number } => {
                         std::thread::sleep(std::time::Duration::from_millis(1000));
                         Some(number + 1)
                     }
@@ -68,22 +72,20 @@ fn handle_message<
             };
 
             if let Some(response) = output {
-                let sub_id = recieved.subscription_id;
-                let sending_inner = serde_json::to_string(&response).unwrap();
-                let sending_content = serde_json::to_string(&response).unwrap();
-
                 handle.dispatch(move | webview | {
                     let sending = Message {
-                        subscription_id: sub_id,
-                        inner: sending_content
+                        subscription_id: recieved.subscription_id,
+                        message_id: recieved.message_id,
+                        inner: serde_json::to_string(&response).unwrap()
                     };
 
                     let eval_script = format!(
                         r#"document.dispatchEvent(
-                            new CustomEvent("{event_name}", {{ detail: {content:?} }})
+                            new CustomEvent("{event_name}", {{ detail: {{ messageId: {message_id:?}, inner: {content:?} }} }})
                         );"#,
                         event_name = sending.subscription_id,
-                        content = sending_inner
+                        message_id = sending.message_id,
+                        content = sending.inner
                     );
 
                     webview.eval(&eval_script)

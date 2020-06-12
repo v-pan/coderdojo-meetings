@@ -10,7 +10,7 @@ export const Main = () => {
 
     const log = () => service.send({tag: 'log', fields: { text: 'This is a test' } })
     const increment = () => service.send({tag: 'increment', fields:{ number: count }})
-    const init = () => service.send({tag: 'init'})
+    const delayedIncrement = () => service.send({tag: 'delayedIncrement', fields:{ number: count }})
 
     const [count, setCount] = useState(0)
 
@@ -26,8 +26,8 @@ export const Main = () => {
                 <p>Last response: {count}</p>
                 <button onClick={() => { log() }}>Click me to print from Rust!</button>
                 <br/>
-                <button onClick={() => { increment() }}>Test Log</button>
-                <button onClick={init}>Init</button>
+                <button onClick={increment}>Increment</button>
+                <button onClick={delayedIncrement}>Delayed increment</button>
                 {/* Testing having many services */}
                 <br />
                 <ServiceConsumer />

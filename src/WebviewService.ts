@@ -4,27 +4,50 @@ import { Request } from "../types/pkg/types";
 
 class WebviewMessage<T> {
     subscription_id: string;
+    message_id: string;
     inner: T;
 
     constructor(subscription_id: string, inner: T) {
         this.subscription_id = subscription_id;
+        this.message_id = generateUUID();
         this.inner = inner;
     }
 }
 
 class WebviewService<T> {
     private subscription_id = generateUUID();
-    private event_listener: EventListener;
+    private handler: (content: any) => any;
+    private unwrapper: (content: any) => any;
+    private sent_messages: { [messageId: string]: { event_listener: EventListener } } = {};
 
     private invoke = <T>(arg: WebviewMessage<T>) => {
         (window as any).external.invoke(JSON.stringify(arg));
     }
 
     /**
-     * Sends `messageContent` to the backend, to be processed by the handler passed to `handle_message`
+     * Sends a request to the backend
      */
     send = (request: Request) => {
-        this.invoke(new WebviewMessage(this.subscription_id, request));
+        let message = new WebviewMessage(this.subscription_id, request)
+
+        const promise = new Promise((resolve, _) => {
+            let event_listener = ((response: CustomEvent) => {
+                if(response.detail.messageId == message.message_id) {
+                    document.removeEventListener(this.subscription_id, this.sent_messages[message.message_id].event_listener)
+                    delete this.sent_messages[message.message_id]
+
+                    console.log("Cleaned up this listener")
+                    resolve(this.handler(this.unwrapper(response)))
+                }
+            }) as EventListener
+
+            this.sent_messages[message.message_id] = { event_listener: event_listener }
+
+            document.addEventListener(this.subscription_id, event_listener)
+        });
+
+        this.invoke(message);
+        return promise
     }
 
     /**
@@ -32,19 +55,13 @@ class WebviewService<T> {
      * You should not need to call this if you are using the `useWebviewService` hook
      */
     drop = () => {
-        document.removeEventListener(this.subscription_id, this.event_listener)
+        // TODO: Implement this
+        // document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T) {
-        // Remember event listener for cleanup
-        this.event_listener = ((response: CustomEvent) => {
-            handler(
-                unwrapper(response)
-                )
-        }) as EventListener
-
-        // Listen for responses
-        document.addEventListener(this.subscription_id, this.event_listener)
+    constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => T) {
+        this.handler = handler;
+        this.unwrapper = unwrapper;
     }
 }
 
@@ -54,9 +71,9 @@ class WebviewService<T> {
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
 
-export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (event: CustomEvent) => T): WebviewService<T> => {
+export const useWebviewService = <T>(handler: (content: T) => any, unwrapper?: (event: CustomEvent) => T): WebviewService<T> => {
     const defaultUnwrapper = (event: CustomEvent) => {
-        return event.detail
+        return event.detail.inner
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
