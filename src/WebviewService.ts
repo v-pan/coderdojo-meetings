@@ -63,8 +63,7 @@ export function useWebviewService<T>(handler: (content: T) => void, unwrapper: (
 
 export function useWebviewService<T>(handler: (content: T) => void, unwrapper?: (event: CustomEvent) => T): WebviewService {
     const defaultUnwrapper = (event: CustomEvent) => {
-        console.log("Recieved message:", event);
-        return event.detail.inner as string
+        return event.detail
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
