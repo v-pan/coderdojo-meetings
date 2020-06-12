@@ -14,7 +14,7 @@ class WebviewMessage<T> {
     }
 }
 
-class WebviewService<T> {
+class WebviewService {
     private subscription_id = generateUUID();
 
     private handler: (content: any) => any;
@@ -24,7 +24,7 @@ class WebviewService<T> {
 
     queue: (fn: () => any) => Promise<any>;
 
-    private invoke = <T>(arg: WebviewMessage<T>) => {
+    private invoke = <M>(arg: WebviewMessage<M>) => {
         (window as any).external.invoke(JSON.stringify(arg));
     }
 
@@ -78,8 +78,8 @@ class WebviewService<T> {
             delete this.sent_messages[key]
         }
     }
-
-    constructor(handler: (content: T) => any, unwrapper: (event: CustomEvent) => Return) {
+  
+    constructor(handler: (content: any) => void, unwrapper: (event: CustomEvent) => any) {
         this.handler = handler;
         this.unwrapper = unwrapper;
         this.queue = this.createPromiseQueue();
@@ -98,11 +98,18 @@ export const narrowReturnType = (detail: Partial<Return>) => {
 
 /**
  * Returns a WebviewService instance
- * @param handler A function, given the `content` returned from `unwrapper`, to handle responses from the backend. If no unwrapper is specified, `content` will be the raw data returned by the backend.
+ * @param handler A function to handle responses from the backend.
+ */
+export function useWebviewService(handler: (content: Return) => any): WebviewService;
+
+/**
+ * Returns a WebviewService instance
+ * @param handler A function to handle responses from the backend.
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
+export function useWebviewService<T>(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T): WebviewService;
 
-export const useWebviewService = <T>(handler?: (content: T) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService<T> => {
+export const useWebviewService = (handler?: (content: Return) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService => {
     const defaultUnwrapper = (event: CustomEvent) => {
         return event.detail.inner as Return
     }
@@ -118,7 +125,7 @@ export const useWebviewService = <T>(handler?: (content: T) => any, unwrapper?: 
     }, [])
     return service
 }
-
+  
 export function useBoxedState<S>(initialState: S | (() => S)): [{value: S}, (value: S | ((prevState: S) => S)) => void] {
     const [internalState, setInternalState] = useState(initialState)
     const box = { value: internalState }
