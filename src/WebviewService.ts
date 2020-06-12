@@ -98,25 +98,31 @@ export const narrowReturnType = (detail: Partial<Return>) => {
 
 /**
  * Returns a WebviewService instance
- * @param handler A function to handle responses from the backend.
+ */
+export function useWebviewService(): WebviewService;
+
+/**
+ * Returns a WebviewService instance
+ * @param handler A function to handle responses from the backend. Should return the value to be recieved by `service.send`
  */
 export function useWebviewService(handler: (content: Return) => any): WebviewService;
 
 /**
  * Returns a WebviewService instance
- * @param handler A function to handle responses from the backend.
+ * @param handler A function to handle responses from the backend. Should return the value to be recieved by `service.send`
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
-export function useWebviewService<T>(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T): WebviewService;
+export function useWebviewService<T>(handler: (content: T) => any, unwrapper: (event: CustomEvent) => T): WebviewService;
 
-export const useWebviewService = (handler?: (content: Return) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService => {
+export function useWebviewService(handler?: (content: Return) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService {
     const defaultUnwrapper = (event: CustomEvent) => {
         return event.detail.inner as Return
     }
 
     unwrapper = unwrapper ? unwrapper : defaultUnwrapper
+    handler = handler ? handler : narrowReturnType
 
-    const service = new WebviewService(narrowReturnType, unwrapper)
+    const service = new WebviewService(handler, unwrapper)
     useEffect(() => {
 
         return () => {
