@@ -12,11 +12,11 @@ class WebviewMessage<T> {
     }
 }
 
-class WebviewService<T> {
+class WebviewService {
     private subscription_id = generateUUID();
     private event_listener: EventListener;
 
-    private invoke = <T>(arg: WebviewMessage<T>) => {
+    private invoke = <M>(arg: WebviewMessage<M>) => {
         (window as any).external.invoke(JSON.stringify(arg));
     }
 
@@ -35,7 +35,7 @@ class WebviewService<T> {
         document.removeEventListener(this.subscription_id, this.event_listener)
     }
 
-    constructor(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T) {
+    constructor(handler: (content: any) => void, unwrapper: (event: CustomEvent) => any) {
         // Remember event listener for cleanup
         this.event_listener = ((response: CustomEvent) => {
             handler(
@@ -50,13 +50,21 @@ class WebviewService<T> {
 
 /**
  * Returns a WebviewService instance
- * @param handler A function, given the `content` returned from `unwrapper`, to handle responses from the backend. If no unwrapper is specified, `content` will be the raw data returned by the backend.
+ * @param handler A function to handle responses from the backend.
+ */
+export function useWebviewService(handler: (content: string) => void): WebviewService;
+
+/**
+ * Returns a WebviewService instance
+ * @param handler A function to handle responses from the backend.
  * @param unwrapper Optional function to expose the CustomEvent received from the backend. Should return the value that is passed to `handler` as `content`
  */
+export function useWebviewService<T>(handler: (content: T) => void, unwrapper: (event: CustomEvent) => T): WebviewService;
 
-export const useWebviewService = <T>(handler: (content: T) => void, unwrapper?: (event: CustomEvent) => T): WebviewService<T> => {
+export function useWebviewService<T>(handler: (content: T) => void, unwrapper?: (event: CustomEvent) => T): WebviewService {
     const defaultUnwrapper = (event: CustomEvent) => {
-        return event.detail
+        console.log("Recieved message:", event);
+        return event.detail.inner as string
     }
 
     const service = new WebviewService(handler, unwrapper ? unwrapper : defaultUnwrapper)
