@@ -1,29 +1,47 @@
 import { h } from "preact";
 import { useState } from "preact/hooks";
-import { useWebviewService } from "../WebviewService";
+import { useWebviewService, useBoxedState } from "../WebviewService";
 import { ServiceConsumer } from "./ServiceConsumer";
 
 export const Main = () => {
-    // TODO: Automate service.send() calls
-    // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
-    const log = () => service.send({tag: 'log', fields: { text: 'This is a test' } })
-    const increment = () => service.send({tag: 'increment', fields:{ number: count }})
-
     const [count, setCount] = useState(0)
+    const [test, setTest] = useBoxedState(0)
+    const [text, setText] = useBoxedState("")
+    const service = useWebviewService()
 
-    const service = useWebviewService((detail: string) => {
-        // TODO: Probably gonna use a reducer style of handling reponse details. Have some state changes instead :)
-        setCount(parseInt(detail))
+    const log = () => service.send(
+        () => ({tag: 'log', fields: { text: 'This is a test' }})
+    )
+
+    const toUpperCase = () => service.send(
+        () => ({tag: 'toUpperCase', fields: { text: text.value }})
+    ).then(result => setText(result))
+
+    const delayedIncrement = () => service.send(
+        () => ({tag: 'delayedIncrement', fields: { number: test.value }})
+    ).then(result => setTest(result))
+
+    const unboxedDelayedIncrement = () => service.send(() => {
+        console.log("Clicked!", count)
+        return {tag: 'delayedIncrement', fields: { number: count }}
+    }).then(result => {
+        console.log("Recieved", result)
+        setCount(result)
     })
 
     return (
         <div>
             <div className="container">
                 <h1>Hello World!</h1>
-                <p>Last response: {count}</p>
+                <p>Last response: unboxed: {count} | boxed: {test.value}</p>
                 <button onClick={() => { log() }}>Click me to print from Rust!</button>
+                <p>Input value: {text.value}</p>
+                <form>
+                    <input value={text.value} onInput={event => {setText((event.target as HTMLInputElement)?.value); toUpperCase()}} />
+                </form>
                 <br/>
-                <button onClick={() => { increment() }}>Test Log</button>
+                <button onClick={unboxedDelayedIncrement}>Unboxed increment</button>
+                <button onClick={delayedIncrement}>Boxed increment</button>
                 {/* Testing having many services */}
                 <br />
                 <ServiceConsumer />
