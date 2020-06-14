@@ -9,11 +9,17 @@ export const Main = () => {
     const [text, setText] = useBoxedState("")
     const service = useWebviewService()
 
-    const log = () => service.send(() => { return {tag: 'log', fields: { text: 'This is a test' }} })
-    const toUpperCase = () => service.send(() => { return {tag: 'toUpperCase', fields: { text: text.value }} }).then(result => setText(result))
+    const log = () => service.send(
+        () => ({tag: 'log', fields: { text: 'This is a test' }})
+    )
 
-    const delayedIncrement = () => service.send(() => { return {tag: 'delayedIncrement', fields: { number: test.value }} })
-        .then(result =>setTest(result))
+    const toUpperCase = () => service.send(
+        () => ({tag: 'toUpperCase', fields: { text: text.value }})
+    ).then(result => setText(result))
+
+    const delayedIncrement = () => service.send(
+        () => ({tag: 'delayedIncrement', fields: { number: test.value }})
+    ).then(result => setTest(result))
 
     const unboxedDelayedIncrement = () => service.send(() => {
         console.log("Clicked!", count)
