@@ -120,7 +120,7 @@ export function useWebviewService(handler: (content: Return) => any): WebviewSer
  */
 export function useWebviewService<T>(handler: (content: T) => any, unwrapper: (event: CustomEvent) => T): WebviewService;
 
-export function useWebviewService(handler?: (content: Return) => any, unwrapper?: (event: CustomEvent) => Return): WebviewService {
+export function useWebviewService<T>(handler?: (content: T) => any, unwrapper?: (event: CustomEvent) => T | Return): WebviewService {
     const defaultUnwrapper = (event: CustomEvent) => {
         return event.detail.inner as Return
     }
