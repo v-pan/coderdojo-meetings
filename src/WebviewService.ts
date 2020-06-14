@@ -22,16 +22,13 @@ class WebviewService {
 
     private sent_messages: { [messageId: string]: { event_listener: EventListener } } = {};
 
-    queue: (fn: () => any) => Promise<any>;
+    private queue: (fn: () => any) => Promise<any>;
 
     private invoke = <M>(arg: WebviewMessage<M>) => {
         (window as any).external.invoke(JSON.stringify(arg));
     }
 
-    /**
-     * Sends a request to the backend
-     */
-    send = (request: Request) => {
+    private getPromiseAndInvoke = (request: Request) => {
         let message = new WebviewMessage(this.subscription_id, request)
 
         if(narrowReturnType(request as Return) !== null) {
@@ -58,9 +55,12 @@ class WebviewService {
         }
     }
 
-    abstractSend = (closure: () => Request) => {
+    /**
+     * Sends a request to the backend
+     */
+    send = (closure: () => Request) => {
         return this.queue(async () => {
-            return await this.send(closure())
+            return await this.getPromiseAndInvoke(closure())
         })
     }
 

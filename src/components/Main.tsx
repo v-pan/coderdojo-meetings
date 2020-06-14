@@ -4,43 +4,24 @@ import { useWebviewService, useBoxedState } from "../WebviewService";
 import { ServiceConsumer } from "./ServiceConsumer";
 
 export const Main = () => {
-    // No longer needed with stronger typing
-    // // TODO: Automate service.send() calls
-    // // Maybe one big object that defines these, passed to the hook, in the style of angular's form builder?
-
     const [count, setCount] = useState(0)
     const [test, setTest] = useBoxedState(0)
-
-    const log = () => service.send({tag: 'log', fields: { text: 'This is a test' } })
-
     const [text, setText] = useBoxedState("")
+    const service = useWebviewService()
 
-    const toUpperCase = () => service.queue(async () => {
-        let result = await service.send({tag: 'toUpperCase', fields: { text: text.value }})
-        setText(result)
-    })
+    const log = () => service.send(() => { return {tag: 'log', fields: { text: 'This is a test' }} })
+    const toUpperCase = () => service.send(() => { return {tag: 'toUpperCase', fields: { text: text.value }} }).then(result => setText(result))
 
-    // const delayedIncrement = () => service.queue(async () => {
-    //     console.log("Clicked!", count)
-    //     let result = await service.send({tag: 'delayedIncrement', fields: { number: test.value }})
-    //     console.log("Recieved", result)
-    //     setTest(result)
-    // })
+    const delayedIncrement = () => service.send(() => { return {tag: 'delayedIncrement', fields: { number: test.value }} })
+        .then(result =>setTest(result))
 
-    const delayedIncrement = () => service.abstractSend(() => { return {tag: 'delayedIncrement', fields: { number: test.value }} })
-        .then(result => {
-            console.log("Abstract queue:", result)
-            setTest(result)
-        })
-
-    const unboxedDelayedIncrement = () => service.queue(async () => {
+    const unboxedDelayedIncrement = () => service.send(() => {
         console.log("Clicked!", count)
-        let result = await service.send({tag: 'delayedIncrement', fields: { number: count }})
+        return {tag: 'delayedIncrement', fields: { number: count }}
+    }).then(result => {
         console.log("Recieved", result)
         setCount(result)
     })
-
-    const service = useWebviewService()
 
     return (
         <div>
