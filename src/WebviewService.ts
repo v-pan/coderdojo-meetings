@@ -88,9 +88,9 @@ class WebviewService {
 
 export const narrowReturnType = (detail: Partial<Return>) => {
     if(detail.tag === 'delayedIncrement' || detail.tag === 'increment') {
-        return detail?.fields?.number ? detail.fields.number : undefined
+        return detail?.fields?.number
     } else if (detail.tag === 'toUpperCase') {
-        return detail?.fields?.text ? detail.fields.text : undefined
+        return detail?.fields?.text
     } else {
         return null
     }
