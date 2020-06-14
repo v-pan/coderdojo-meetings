@@ -58,6 +58,12 @@ class WebviewService {
         }
     }
 
+    abstractSend = (closure: () => Request) => {
+        return this.queue(async () => {
+            return await this.send(closure())
+        })
+    }
+
     private createPromiseQueue = (/*stopOnError: boolean*/) => {
         let p: Promise<any> = Promise.resolve()
         return function(fn: (request: Request) => any) {

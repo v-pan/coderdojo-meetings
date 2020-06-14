@@ -20,12 +20,18 @@ export const Main = () => {
         setText(result)
     })
 
-    const delayedIncrement = () => service.queue(async () => {
-        console.log("Clicked!", count)
-        let result = await service.send({tag: 'delayedIncrement', fields: { number: test.value }})
-        console.log("Recieved", result)
-        setTest(result)
-    })
+    // const delayedIncrement = () => service.queue(async () => {
+    //     console.log("Clicked!", count)
+    //     let result = await service.send({tag: 'delayedIncrement', fields: { number: test.value }})
+    //     console.log("Recieved", result)
+    //     setTest(result)
+    // })
+
+    const delayedIncrement = () => service.abstractSend(() => { return {tag: 'delayedIncrement', fields: { number: test.value }} })
+        .then(result => {
+            console.log("Abstract queue:", result)
+            setTest(result)
+        })
 
     const unboxedDelayedIncrement = () => service.queue(async () => {
         console.log("Clicked!", count)
